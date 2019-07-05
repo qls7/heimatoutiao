@@ -9,4 +9,4 @@ class DefaultConfig(object):
     LOGGING_FILE_DIR = '/home/python/logs'
     LOGGING_FILE_MAX_BYTES = 300 * 1024 * 1024
     LOGGING_FILE_BACKUP = 10
-    PROPAGATE_EXCEPTIONS = True # 设置为False, 则flask内置日志会写入文件, 但错误信息将不会显示到网页上
+    PROPAGATE_EXCEPTIONS = True  # 设置为False, 则flask内置日志会写入文件, 但错误信息将不会显示到网页上

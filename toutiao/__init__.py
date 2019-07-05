@@ -12,7 +12,7 @@ def create_flask_app(config, enable_config_file=False):
     if enable_config_file:
         from utils import constants
         # 加载隐私配置
-        app.config.from_envvar(constants.GLOBAL_SETTING_ENV_NAME, slient=True)
+        app.config.from_envvar(constants.GLOBAL_SETTING_ENV_NAME, silent=True)
 
     return app
 
@@ -36,4 +36,6 @@ def create_app(config, enable_config_file=False):
 
     # 限流器
     limiter.limiter.init_app(app)
+
+    return app
 
