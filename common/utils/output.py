@@ -14,7 +14,7 @@ def output_json(data, code, headers=None):
     if 'message' not in data:
         data = {
             'message': 'OK',
-            'data' : data
+            'data': data
         }
 
     settings = current_app.config.get('RESTFUL_JSON', {})
