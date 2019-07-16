@@ -1,7 +1,6 @@
 from flask import Flask
 
 
-
 def create_flask_app(config, enable_config_file=False):
     """创建Flask应用"""
     app = Flask(__name__)
@@ -33,6 +32,10 @@ def create_app(config, enable_config_file=False):
     # 获取redis主从连接对象
     app.redis_master = _sentinel.master_for(app.config['REDIS_SENTINEL_SERVICE_NAME'])
     app.redis_slave = _sentinel.slave_for(app.config['REDIS_SENTINEL_SERVICE_NAME'])
+
+    # 配置mysql数据库
+    from models import db
+    db.init_app(app)
 
     # 配置日志
     from utils.logging import create_logger
