@@ -2,7 +2,13 @@ class DefaultConfig(object):
     """
     Flask 默认配置
     """
-    # TODO redis 哨兵
+    # 添加哨兵
+    REDIS_SENTINELS = [
+        ('127.0.0.1', '26379'),
+        ('127.0.0.1', '26378'),
+        ('127.0.0.1', '26377'),
+    ]
+    REDIS_SENTINEL_SERVICE_NAME = 'mymaster'
 
     # 日志
     LOGGING_LEVEL = 'DEBUG'
