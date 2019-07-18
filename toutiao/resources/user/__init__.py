@@ -17,3 +17,4 @@ user_api.representation('application/json')(output_json)
 # 添加类视图
 user_api.add_resource(passport.SMSVerificationCodeResource, '/v1_0/sms/codes/<mobile:mobile>',
                       endpoint='SMSVerificationCode')
+user_api.add_resource(passport.AuthorizationResource, '/v1_0/authorizations', endpoint='AuthorizationResource')
