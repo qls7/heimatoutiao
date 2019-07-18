@@ -34,10 +34,11 @@ class AuthorizationResource(Resource):
     """
     method_decorators = {
         'post': [set_db_to_write],
-        'get': [login_required]
+        'get': [login_required],
+        'put': [login_required]
     }
 
-    def _generate_token(self, user_id):
+    def _generate_token(self, user_id, is_refresh=True):
         """
         生成JWT
         :param user_id: 用户id
@@ -50,11 +51,14 @@ class AuthorizationResource(Resource):
         expiry = datetime.utcnow() + timedelta(current_app.config['JWT_EXPIRY_HOURS'])
         access_token = generate_jwt(payload, expiry)
 
-        # 生成刷新token
-        payload = {'payload': user_id, 'is_refresh': True}
-        # 设置过期时间
-        expiry = datetime.utcnow() + timedelta(current_app.config['JWT_REFRESH_DAYS'])
-        refresh_token = generate_jwt(payload, expiry)
+        if is_refresh:
+            # 生成刷新token
+            payload = {'payload': user_id, 'is_refresh': True}
+            # 设置过期时间
+            expiry = datetime.utcnow() + timedelta(current_app.config['JWT_REFRESH_DAYS'])
+            refresh_token = generate_jwt(payload, expiry)
+        else:
+            refresh_token = None
 
         return access_token, refresh_token
 
@@ -112,3 +116,12 @@ class AuthorizationResource(Resource):
     def get(self):
         """测试认证权限"""
         return {'user_id': g.user_id, 'is_refresh': g.is_refresh}
+
+    def put(self):
+        """访问token过期, 生成访问token"""
+        if g.user_id and g.is_refresh:
+            access_token, refresh_token = self._generate_token(g.user_id, is_refresh=False)
+            # 返回访问token
+            return {'access_token': access_token}
+        else:
+            return {'message': 'Invalid jwt'}, 401  # 返回401 未认证
