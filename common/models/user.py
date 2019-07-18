@@ -35,7 +35,7 @@ class User(db.Model):
     followings = db.relationship('Relation', primaryjoin='User.id==Relation.user_id')
 
 
-class Userprofile(db.Model):
+class UserProfile(db.Model):
     """
     用户资料表
     """

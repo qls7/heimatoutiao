@@ -10,6 +10,13 @@ class DefaultConfig(object):
     ]
     REDIS_SENTINEL_SERVICE_NAME = 'mymaster'
 
+    # redis 集群
+    REDIS_CLUSTER = [
+        {'host': '127.0.0.1', 'port': '6380'},
+        {'host': '127.0.0.1', 'port': '6381'},
+        {'host': '127.0.0.1', 'port': '6382'},
+    ]
+
     # 日志
     LOGGING_LEVEL = 'DEBUG'
     LOGGING_FILE_DIR = '/home/python/logs'
@@ -32,9 +39,14 @@ class DefaultConfig(object):
         'default': 'master1'
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # 追踪数据的修改信号
-    SQLALCHEMY_ECHO = True  # 打印底层sql语句
+    SQLALCHEMY_ECHO = False  # 打印底层sql语句
 
     # Snowflake ID Worker 参数
     DATACENTER_ID = 0
     WORKER_ID = 0
     SEQUENCE = 0
+
+    # jwt
+    JWT_SECRET = 'TPmi4aLWRbyVq8zu9v82dWYW17/z+UvRnYTt4P6fAXA' #  消息认证的秘钥
+    JWT_EXPIRY_HOURS = 2  # 访问token的过期时间
+    JWT_REFRESH_DAYS = 14  # 刷新token的过期时间
