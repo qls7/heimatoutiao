@@ -10,6 +10,13 @@ class DefaultConfig(object):
     ]
     REDIS_SENTINEL_SERVICE_NAME = 'mymaster'
 
+    # redis 集群
+    REDIS_CLUSTER = [
+        {'host': '127.0.0.1', 'port': '6380'},
+        {'host': '127.0.0.1', 'port': '6381'},
+        {'host': '127.0.0.1', 'port': '6382'},
+    ]
+
     # 日志
     LOGGING_LEVEL = 'DEBUG'
     LOGGING_FILE_DIR = '/home/python/logs'

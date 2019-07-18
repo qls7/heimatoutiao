@@ -33,6 +33,10 @@ def create_app(config, enable_config_file=False):
     app.redis_master = _sentinel.master_for(app.config['REDIS_SENTINEL_SERVICE_NAME'])
     app.redis_slave = _sentinel.slave_for(app.config['REDIS_SENTINEL_SERVICE_NAME'])
 
+    # 创建redis集群
+    from rediscluster import StrictRedisCluster
+    app.redis_cluster = StrictRedisCluster(startup_nodes=app.config['REDIS_CLUSTER'])
+
     # 配置mysql数据库
     from models import db
     db.init_app(app)
