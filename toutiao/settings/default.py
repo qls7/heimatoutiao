@@ -33,3 +33,8 @@ class DefaultConfig(object):
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # 追踪数据的修改信号
     SQLALCHEMY_ECHO = True  # 打印底层sql语句
+
+    # Snowflake ID Worker 参数
+    DATACENTER_ID = 0
+    WORKER_ID = 0
+    SEQUENCE = 0
