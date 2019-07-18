@@ -50,3 +50,9 @@ class DefaultConfig(object):
     JWT_SECRET = 'TPmi4aLWRbyVq8zu9v82dWYW17/z+UvRnYTt4P6fAXA' #  消息认证的秘钥
     JWT_EXPIRY_HOURS = 2  # 访问token的过期时间
     JWT_REFRESH_DAYS = 14  # 刷新token的过期时间
+
+    # 七牛云
+    QINIU_ACCESS_KEY = 'kJ8wVO7lmFGsdvtI5M7eQDEJ1eT3Vrygb4SmR00E'
+    QINIU_SECERET_KEY = 'rGwHyAvnlLK7rU4htRpNYzpuz0OHJKzX2O1LWTNl'
+    QINIU_BUCKET_NAME = 'sh26'  # 存储空间的名字
+    QINIU_DOMAIN = 'http://puk2zync7.bkt.clouddn.com/'  # 存储图片的域名
