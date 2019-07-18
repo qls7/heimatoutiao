@@ -45,3 +45,8 @@ class DefaultConfig(object):
     DATACENTER_ID = 0
     WORKER_ID = 0
     SEQUENCE = 0
+
+    # jwt
+    JWT_SECRET = 'TPmi4aLWRbyVq8zu9v82dWYW17/z+UvRnYTt4P6fAXA' #  消息认证的秘钥
+    JWT_EXPIRY_HOURS = 2  # 访问token的过期时间
+    JWT_REFRESH_DAYS = 14  # 刷新token的过期时间

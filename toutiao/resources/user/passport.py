@@ -1,15 +1,14 @@
-import logging
 import random
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import current_app
 from flask_restful import Resource, reqparse
-from redis import RedisError
 
 from models import db
 from models.user import User, UserProfile
 from utils import parser
 from utils.decorators import set_db_to_write
+from utils.jwt_util import generate_jwt
 from . import constants
 
 
@@ -36,6 +35,27 @@ class AuthorizationResource(Resource):
     method_decorators = {
         'post': [set_db_to_write]
     }
+
+    def _generate_token(self, user_id):
+        """
+        生成JWT
+        :param user_id: 用户id
+        :return: token
+        """
+        # 生成访问token
+        # 构建数据
+        payload = {'payload': user_id, 'is_refresh': False}
+        # 设置过期时间
+        expiry = datetime.utcnow() + timedelta(current_app.config['JWT_EXPIRY_HOURS'])
+        access_token = generate_jwt(payload, expiry)
+
+        # 生成刷新token
+        payload = {'payload': user_id, 'is_refresh': True}
+        # 设置过期时间
+        expiry = datetime.utcnow() + timedelta(current_app.config['JWT_REFRESH_DAYS'])
+        refresh_token = generate_jwt(payload, expiry)
+
+        return access_token, refresh_token
 
     def post(self):
         """
@@ -78,12 +98,12 @@ class AuthorizationResource(Resource):
             profile = UserProfile(id=user_id)
             db.session.add(profile)
             db.session.commit()
+        else:
+            user_id = user.id
         # TODO 免密码登录
-        return {'message': 'OK'}, 201
-        # # 登录成功, 生成access_token 和refresh_token 并返回
-        # access_token, refresh_token = genera_token()
-        # data = {
-        #     'access_token': access_token,
-        #     'refresh_token': refresh_token
-        # }
-        # return data
+        # 登录成功, 生成access_token 和refresh_token 并返回
+        access_token, refresh_token = self._generate_token(user_id)
+        return {
+            'access_token': access_token,
+            'refresh_token': refresh_token
+        }, 201
