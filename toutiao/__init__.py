@@ -55,6 +55,10 @@ def create_app(config, enable_config_file=False):
                              app.config['WORKER_ID'],
                              app.config['SEQUENCE'])
 
+    # 创建请求钩子
+    from utils.middlewares import jwt_authentication
+    app.before_request(jwt_authentication)
+
     # 注册用户蓝图模块
     from .resources.user import user_bp
     app.register_blueprint(user_bp)

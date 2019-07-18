@@ -1,13 +1,13 @@
 import random
 
 from datetime import datetime, timedelta
-from flask import current_app
+from flask import current_app, g
 from flask_restful import Resource, reqparse
 
 from models import db
 from models.user import User, UserProfile
 from utils import parser
-from utils.decorators import set_db_to_write
+from utils.decorators import set_db_to_write, login_required
 from utils.jwt_util import generate_jwt
 from . import constants
 
@@ -33,7 +33,8 @@ class AuthorizationResource(Resource):
     登录认证
     """
     method_decorators = {
-        'post': [set_db_to_write]
+        'post': [set_db_to_write],
+        'get': [login_required]
     }
 
     def _generate_token(self, user_id):
@@ -107,3 +108,7 @@ class AuthorizationResource(Resource):
             'access_token': access_token,
             'refresh_token': refresh_token
         }, 201
+
+    def get(self):
+        """测试认证权限"""
+        return {'user_id': g.user_id, 'is_refresh': g.is_refresh}
