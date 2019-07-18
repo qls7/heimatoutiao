@@ -18,6 +18,23 @@ class DefaultConfig(object):
     PROPAGATE_EXCEPTIONS = True  # 设置为False, 则flask内置日志会写入文件, 但错误信息将不会显示到网页上
 
     # sqlalchemy的配置
-    SQLALCHEMY_DATA_URI = 'mysql://root:mysql@127.0.0.1:3306/toutiao'
+    # SQLALCHEMY_DATA_URI = 'mysql://root:mysql@127.0.0.1:3306/toutiao'
+
+    SQLALCHEMY_BINDS = {
+        'master1': 'mysql://root:mysql@127.0.0.1:3306/toutiao',
+        'master2': 'mysql://root:mysql@127.0.0.1:3306/toutiao',
+        'slave1': 'mysql://root:mysql@127.0.0.1:8306/toutiao',
+        'slave2': 'mysql://root:mysql@127.0.0.1:8306/toutiao',
+    }
+    SQLALCHEMY_CLUSTER = {
+        'masters': ['master1', 'master2'],
+        'slaves': ['slave1', 'slave2'],
+        'default': 'master1'
+    }
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # 追踪数据的修改信号
     SQLALCHEMY_ECHO = True  # 打印底层sql语句
+
+    # Snowflake ID Worker 参数
+    DATACENTER_ID = 0
+    WORKER_ID = 0
+    SEQUENCE = 0
