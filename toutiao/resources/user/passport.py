@@ -35,7 +35,6 @@ class AuthorizationResource(Resource):
     method_decorators = {
         'post': [set_db_to_write],
         'get': [login_required],
-        'put': [login_required]
     }
 
     def _generate_token(self, user_id, is_refresh=True):
@@ -86,12 +85,11 @@ class AuthorizationResource(Resource):
 
         #  删除验证码
         # try:
-            # current_app.redis_master.delete(key)
+        # current_app.redis_master.delete(key)
         # except ConnectionError as e:
         #     current_app.logger.error(e)
 
         if not server_code or int(server_code) != code:
-
             return {'message': 'Invalid code.'}, 400
         # 登录成功 查询或保存用户
         user = User.query.filter_by(mobile=mobile).first()
@@ -105,13 +103,13 @@ class AuthorizationResource(Resource):
             db.session.commit()
         else:
             user_id = user.id
-        # TODO 免密码登录
+        # 免密码登录
         # 登录成功, 生成access_token 和refresh_token 并返回
         access_token, refresh_token = self._generate_token(user_id)
         return {
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        }, 201
+                   'access_token': access_token,
+                   'refresh_token': refresh_token
+               }, 201
 
     def get(self):
         """测试认证权限"""
