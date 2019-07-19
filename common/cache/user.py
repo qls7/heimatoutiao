@@ -35,38 +35,7 @@ class UserProfileCache(object):
                 # 如果不是-1 直接进行返回
                 return pickle.loads(user_data)
         else:
-            # 未击中缓存,去mysql数据库查询
-            try:
-                user = User.query.options(load_only(User.name, User.mobile,
-                                                User.profile_photo, User.certificate,
-                                                User.introduction)).filter(id=self.user_id).first()
-            except DatabaseError as e:
-                current_app.logger.error(e)
-                raise e
-            # 防止缓存穿透
-            if not user:
-                try:
-                    self.cluster.setex(self.key, UserNotExistCacheTTL.get_val(), -1)
-                except RecursionError as e:
-                    current_app.logger.error(e)
-                return None
-
-            user_dict = {
-                'name': user.name,
-                'mobile': user.mobile,
-                'profile_photo': user.profile_photo,
-                'certificate': user.certificate,
-                'introduction': user.introduction,
-            }
-            user_str = pickle.dumps(user_dict)
-            # 保存到缓存
-            try:
-                self.cluster.setex(self.key, UserProfileCacheTTL.get_val(), user_str)
-            except RecursionError as e:
-                current_app.logger.error(e)
-
-            # 进行返回
-            return user_dict
+            return self.save()
 
     def clear(self):
         """清空缓存"""
@@ -75,3 +44,58 @@ class UserProfileCache(object):
         except RedisError as e:
             current_app.logger.error(e)
             raise e
+
+    def exist(self):
+        """判断数据是否存在"""
+        try:
+            user_data = self.cluster.get(self.key)
+        except RedisError as e:
+            current_app.logger.error(e)
+            user_data = None
+
+        if user_data:
+            if user_data == b'-1':
+                return False
+            else:
+                return True
+        else:
+            user_dict = self.save()
+            if user_dict:
+                return True
+            else:
+                return False
+
+    def save(self):
+        """不存在的情况下去数据库查询, 并保存到缓存"""
+        # 未击中缓存,去mysql数据库查询
+        try:
+            user = User.query.options(load_only(User.name, User.mobile,
+                                                User.profile_photo, User.certificate,
+                                                User.introduction)).filter(id=self.user_id).first()
+        except DatabaseError as e:
+            current_app.logger.error(e)
+            raise e
+        # 防止缓存穿透
+        if not user:
+            try:
+                self.cluster.setex(self.key, UserNotExistCacheTTL.get_val(), -1)
+            except RecursionError as e:
+                current_app.logger.error(e)
+            return None
+
+        user_dict = {
+            'name': user.name,
+            'mobile': user.mobile,
+            'profile_photo': user.profile_photo,
+            'certificate': user.certificate,
+            'introduction': user.introduction,
+        }
+        user_str = pickle.dumps(user_dict)
+        # 保存到缓存
+        try:
+            self.cluster.setex(self.key, UserProfileCacheTTL.get_val(), user_str)
+        except RecursionError as e:
+            current_app.logger.error(e)
+
+        # 进行返回
+        return user_dict
