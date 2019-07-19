@@ -22,14 +22,14 @@ def upload_file(data):
     key = None
 
     # 生成上传 Token, 可以指定过期时间等, 注意这里的过期时间是token的过期时间
-    token = auth.upload_token(bucket_name, key, 3600)
+    token = auth.upload_token(bucket_name, key, 3600 * 1000)
 
     # 上传二进制数据到七牛云
-    ret, info = put_data(token, key, data)
-    if info.status_code == '200':
+    ret, info = put_data(token, key, data) # ret 是一个字典 info 是一个ResponseInfo对象
+    if info.status_code == 200:  # 注意这里状态码是 int
         return ret.get('key')  # 上传成功, 返回七牛云存储的图片名
     else:
-        raise Exception(info.error)  # 上传失败, 抛出异常, 获取具体的错误信息
+        raise Exception(info.status_code)  # 上传失败, 抛出异常, 获取具体的错误信息状态码
 
 
 if __name__ == '__main__':
