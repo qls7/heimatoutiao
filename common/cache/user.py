@@ -3,6 +3,7 @@ import pickle
 from flask import current_app
 from sqlalchemy.orm import load_only
 
+from cache.constants import UserNotExistCacheTTL, UserProfileCacheTTL
 from models.user import User
 
 
@@ -38,7 +39,7 @@ class UserProfileCache(object):
                                                 User.introduction)).filter(id=self.user_id).first()
             # 防止缓存穿透
             if not user:
-                self.cluster.setex(self.key, 60 * 10, -1)
+                self.cluster.setex(self.key, UserNotExistCacheTTL.get_val(), -1)
                 return None
 
             user_dict = {
@@ -50,7 +51,7 @@ class UserProfileCache(object):
             }
             user_str = pickle.dumps(user_dict)
             # 保存到缓存
-            self.cluster.setex(self.key, 60 * 60 * 2, user_str)
+            self.cluster.setex(self.key, UserProfileCacheTTL.get_val(), user_str)
 
             # 进行返回
             return user_dict
