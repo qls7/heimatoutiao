@@ -19,11 +19,11 @@ class RoutingSession(SignallingSession):
 
         if self.bind_key:
             # 指定使用的引擎
-            print('Using DB bind: _name={}'.format(self.bind_key))
+            # print('Using DB bind: _name={}'.format(self.bind_key))
             return state.db.get_engine(self.app, bind=self.bind_key)
         else:
             # 默认数据库
-            print('Using DB bind: _name={}'.format(self.default_key))
+            # print('Using DB bind: _name={}'.format(self.default_key))
             return state.db.get_engine(self.app, bind=self.default_key)
 
     def set_to_write(self):

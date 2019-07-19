@@ -2,6 +2,7 @@
 from flask import Blueprint
 from flask_restful import Api
 
+from toutiao.resources.user import profile
 from . import passport
 from utils.output import output_json
 
@@ -18,3 +19,5 @@ user_api.representation('application/json')(output_json)
 user_api.add_resource(passport.SMSVerificationCodeResource, '/v1_0/sms/codes/<mobile:mobile>',
                       endpoint='SMSVerificationCode')
 user_api.add_resource(passport.AuthorizationResource, '/v1_0/authorizations', endpoint='AuthorizationResource')
+
+user_api.add_resource(profile.PhotoResource, '/v1_0/user/photo', endpoint='Photo')

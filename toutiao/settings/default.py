@@ -53,6 +53,6 @@ class DefaultConfig(object):
 
     # 七牛云
     QINIU_ACCESS_KEY = 'kJ8wVO7lmFGsdvtI5M7eQDEJ1eT3Vrygb4SmR00E'
-    QINIU_SECERET_KEY = 'rGwHyAvnlLK7rU4htRpNYzpuz0OHJKzX2O1LWTNl'
+    QINIU_SECRET_KEY = 'rGwHyAvnlLK7rU4htRpNYzpuz0OHJKzX2O1LWTNl'
     QINIU_BUCKET_NAME = 'sh26'  # 存储空间的名字
     QINIU_DOMAIN = 'http://puk2zync7.bkt.clouddn.com/'  # 存储图片的域名
