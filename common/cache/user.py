@@ -70,4 +70,8 @@ class UserProfileCache(object):
 
     def clear(self):
         """清空缓存"""
-        pass
+        try:
+            self.cluster.delete(self.key)
+        except RedisError as e:
+            current_app.logger.error(e)
+            raise e
