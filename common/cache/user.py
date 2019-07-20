@@ -1,6 +1,6 @@
 import pickle
 
-from flask import current_app
+from flask import current_app, g
 from redis import RedisError
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.orm import load_only
@@ -13,6 +13,7 @@ class UserProfileCache(object):
     """
     用户基本信息缓存类,每个缓存对象,对应一套用户缓存数据
     """
+
     def __init__(self, user_id):
         self.user_id = user_id  # 用户id
         self.key = 'user:{}:profile'.format(self.user_id)  # redis中存储的键
@@ -68,34 +69,45 @@ class UserProfileCache(object):
     def save(self):
         """不存在的情况下去数据库查询, 并保存到缓存"""
         # 未击中缓存,去mysql数据库查询
-        try:
-            user = User.query.options(load_only(User.name, User.mobile,
-                                                User.profile_photo, User.certificate,
-                                                User.introduction)).filter(id=self.user_id).first()
-        except DatabaseError as e:
-            current_app.logger.error(e)
-            raise e
-        # 防止缓存穿透
-        if not user:
-            try:
-                self.cluster.setex(self.key, UserNotExistCacheTTL.get_val(), -1)
-            except RecursionError as e:
-                current_app.logger.error(e)
-            return None
+        # 使用悲观锁实现缓存更新的问题, 查之前先进行判断是否有人在更新
+        # 使用乐观锁进行判断是否有在更新的数据
+        lock_key = 'user:{}:profile:update'.format(g.user_id)
+        while True:
+            # lock = self.cluster.setnx(lock_key, 1)
+            lock = self.cluster.get(lock_key)
+            if lock == 0:
+                # self.cluster.expire(lock_key, 1)
+                try:
+                    user = User.query.options(load_only(User.name, User.mobile,
+                                                        User.profile_photo, User.certificate,
+                                                        User.introduction)).filter(User.id == self.user_id).first()
+                except DatabaseError as e:
+                    current_app.logger.error(e)
+                    # self.cluster.delete(lock_key)
+                    raise e
+                # 防止缓存穿透
+                if not user:
+                    try:
+                        self.cluster.setex(self.key, UserNotExistCacheTTL.get_val(), -1)
+                    except RecursionError as e:
+                        current_app.logger.error(e)
+                    # self.cluster.delete(lock_key)
+                    return None
 
-        user_dict = {
-            'name': user.name,
-            'mobile': user.mobile,
-            'profile_photo': user.profile_photo,
-            'certificate': user.certificate,
-            'introduction': user.introduction,
-        }
-        user_str = pickle.dumps(user_dict)
-        # 保存到缓存
-        try:
-            self.cluster.setex(self.key, UserProfileCacheTTL.get_val(), user_str)
-        except RecursionError as e:
-            current_app.logger.error(e)
+                user_dict = {
+                    'name': user.name,
+                    'mobile': user.mobile,
+                    'profile_photo': user.profile_photo,
+                    'certificate': user.certificate,
+                    'introduction': user.introduction,
+                }
+                user_str = pickle.dumps(user_dict)
+                # 保存到缓存
+                try:
+                    self.cluster.setex(self.key, UserProfileCacheTTL.get_val(), user_str)
+                except RecursionError as e:
+                    current_app.logger.error(e)
 
-        # 进行返回
-        return user_dict
+                # 进行返回
+                # self.cluster.delete(lock_key)
+                return user_dict
