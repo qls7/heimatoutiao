@@ -21,3 +21,5 @@ user_api.add_resource(passport.SMSVerificationCodeResource, '/v1_0/sms/codes/<mo
 user_api.add_resource(passport.AuthorizationResource, '/v1_0/authorizations', endpoint='AuthorizationResource')
 
 user_api.add_resource(profile.PhotoResource, '/v1_0/user/photo', endpoint='Photo')
+
+user_api.add_resource(profile.CurrentUserProfileResource, '/v1_0/user', endpoint='CurrentUser')

@@ -3,10 +3,11 @@ from flask_restful import Resource, reqparse
 from sqlalchemy.exc import DatabaseError
 from werkzeug.datastructures import FileStorage
 
+from cache.user import UserProfileCache
 from models import db
 from models.user import User
 from utils import parser, storage
-from utils.decorators import login_required, set_db_to_write
+from utils.decorators import login_required, set_db_to_write, set_db_to_read
 
 
 class PhotoResource(Resource):
@@ -36,7 +37,7 @@ class PhotoResource(Resource):
         except BaseException as e:
             current_app.logger.error(e)
             print(e)
-            return {'message': 'image upload faild'}, 500
+            return {'message': 'image upload fail'}, 500
 
         photo_url = current_app.config['QINIU_DOMAIN'] + key
 
@@ -49,3 +50,31 @@ class PhotoResource(Resource):
             current_app.logger.error(e)
 
         return {'photo_url': photo_url}, 201
+
+
+class CurrentUserProfileResource(Resource):
+    """
+    个人中心-获取用户信息
+    """
+    method_decorators = [login_required, set_db_to_read]
+
+    def get(self):
+        """
+        获取用户信息
+        :return:
+        """
+        user_id = g.user_id
+        # 先进行判断user_id是否存在
+        user_cache = UserProfileCache(user_id)
+
+        if user_cache.exist():
+            # 获取用户信息
+            try:
+                user_dict = user_cache.get()
+            except BaseException as e:
+                current_app.logger.error(e)
+                return {'message': 'Server Error'}, 500
+
+            return user_dict
+        else:
+            return {'message': 'Invalid User'}, 400

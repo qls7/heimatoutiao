@@ -72,7 +72,7 @@ class UserProfileCache(object):
         try:
             user = User.query.options(load_only(User.name, User.mobile,
                                                 User.profile_photo, User.certificate,
-                                                User.introduction)).filter(id=self.user_id).first()
+                                                User.introduction)).filter(User.id == self.user_id).first()
         except DatabaseError as e:
             current_app.logger.error(e)
             raise e
