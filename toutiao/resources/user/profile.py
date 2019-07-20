@@ -43,21 +43,36 @@ class PhotoResource(Resource):
         # 把key存储到数据库中
         user_id = g.user_id
         lock_key = 'user:{}:profile:update'.format(user_id)
-        # 使用悲观锁进行保证缓存更新一致的问题, 但完全是串行, 影响效率
-        while True:
-            lock = current_app.redis_cluster.setnx(lock_key, 1)
-            if lock:
-                current_app.redis_cluster.expire(lock_key, 1)
-                try:
-                    User.query.filter(User.id == user_id).update({'profile_photo': key})
-                    db.session.commit()
-                except DatabaseError as e:
-                    current_app.logger.error(e)
-                    current_app.redis_cluster.delete(lock_key)
-                    return {'message': 'Database Error'}, 500
-                UserProfileCache(user_id).clear()  # 删除该数据对象对应的缓存
-                current_app.redis_cluster.delete(lock_key)
-                return {'photo_url': photo_url}, 201
+        # 1.使用悲观锁进行保证缓存更新一致的问题, 但完全是串行, 影响效率
+        # 2.使用乐观锁保证缓存更新一致, 可以支持并发, 但不能完全保证一致
+        current_app.redis_cluster.incr(lock_key)
+
+        try:
+            User.query.filter(User.id == user_id).update({'profile_photo': key})
+            db.session.commit()
+        except DatabaseError as e:
+            current_app.logger.error(e)
+            current_app.redis_cluster.decr(lock_key, -1)
+            return {'message': 'Database Error'}, 500
+
+        UserProfileCache(user_id).clear()  # 删除该数据对象对应的缓存
+        current_app.redis_cluster.decr(lock_key, -1)
+
+        return {'photo_url': photo_url}, 201
+        # while True:
+        #     lock = current_app.redis_cluster.setnx(lock_key, 1)
+        #     if lock:
+        #         current_app.redis_cluster.expire(lock_key, 1)
+        #         try:
+        #             User.query.filter(User.id == user_id).update({'profile_photo': key})
+        #             db.session.commit()
+        #         except DatabaseError as e:
+        #             current_app.logger.error(e)
+        #             # current_app.redis_cluster.delete(lock_key)
+        #             return {'message': 'Database Error'}, 500
+        #         UserProfileCache(user_id).clear()  # 删除该数据对象对应的缓存
+        #         # current_app.redis_cluster.delete(lock_key)
+        #         return {'photo_url': photo_url}, 201
 
 
 class CurrentUserProfileResource(Resource):
