@@ -66,9 +66,9 @@ def create_app(config, enable_config_file=False):
     }
     app.scheduler = BackgroundScheduler(executors=executors)
     # 添加任务 每天3点校正数据
-    app.scheduler.add_job(fix_statistic, 'cron', hour=3)
+    # app.scheduler.add_job(fix_statistic, 'cron', hour=3, args=[app])
     # date 只用于测试
-    app.scheduler.add_job(fix_statistic, 'date')
+    app.scheduler.add_job(fix_statistic, 'date', args=[app])
     app.scheduler.start()
 
     # 创建请求钩子
