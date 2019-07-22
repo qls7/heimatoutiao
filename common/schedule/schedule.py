@@ -3,7 +3,6 @@ from cache.statistic import UserArticleCountStorage, UserFollowingsCountStorage,
 from utils.decorators import set_db_to_read
 
 
-@set_db_to_read
 def __fix_statistic(cls):
     try:
         # 先得到查询集
@@ -15,7 +14,6 @@ def __fix_statistic(cls):
         raise e
 
 
-@set_db_to_read
 def fix_statistic(app):
     """
     修正统计数据
