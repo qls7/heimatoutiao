@@ -1,5 +1,10 @@
 from flask import current_app
 from redis import RedisError
+from sqlalchemy import func
+
+from models import db
+from models.news import Article
+from models.user import Relation
 
 
 class BaseCountStorage:
@@ -36,6 +41,22 @@ class BaseCountStorage:
             current_app.logger.error(e)
             raise e
 
+    @classmethod
+    def reset(cls, db_query_ret):
+        """
+        重置对应的数据集
+        :data: 数据集合
+        :return:
+        """
+        # 删除redis中的值
+        pipe = current_app.redis_master.pipeline(transaction=False)
+        pipe.delete(cls.key)
+        # 重新写入redis
+        for user_id, count in db_query_ret:
+            pipe.zadd(cls.key, count, user_id)
+
+        pipe.execute()
+
 
 class UserArticleCountStorage(BaseCountStorage):
     """
@@ -46,23 +67,52 @@ class UserArticleCountStorage(BaseCountStorage):
 
     key = 'count:user:arts'
 
+    @classmethod
+    def get_query(cls):
+        """
+        获取需要操作的数据集合
+        :return: 数据集合
+        """
+        # 查询数据库库中对应的值
+        return db.session.query(Article.user_id, func.count(Article.id)).\
+            filter(Article.status == Article.STATUS.APPROVED).group_by(Article.user_id).all()
+
 
 class UserFollowingsCountStorage(BaseCountStorage):
     """
     用户关注数量统计类
 
-    count: user: followings zset [{value: 用户id, score: 作品数}, {}]
+    count: user: followings zset [{value: 用户id, score: 关注数}, {}]
     """
 
     key = 'count:user:followings'
+
+    @classmethod
+    def get_query(cls):
+        """
+        获取需要操作的数据集合
+        :return: 数据集合
+        """
+        # 查询数据库库中对应的值
+        return db.session.query(Relation.user_id, func.count(Relation.id)).\
+            filter(Relation.relation == Relation.RELATION.FOLLOW).group_by(Relation.user_id).all()
 
 
 class UserFansCountStorage(BaseCountStorage):
     """
     用户粉丝数量统计类
 
-    count: user: fans zset [{value: 用户id, score: 作品数}, {}]
+    count: user: fans zset [{value: 用户id, score: 粉丝数}, {}]
     """
 
     key = 'count:user:fans'
 
+    @classmethod
+    def get_query(cls):
+        """
+        获取需要操作的数据集合
+        :return: 数据集合
+        """
+        # 查询数据库库中对应的值
+        return db.session.query(Relation.target_user_id, func.count(Relation.id)).\
+            filter(Relation.relation == Relation.RELATION.FOLLOW).group_by(Relation.target_user_id).all()
