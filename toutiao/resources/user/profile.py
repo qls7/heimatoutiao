@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse
 from sqlalchemy.exc import DatabaseError
 from werkzeug.datastructures import FileStorage
 
+from cache.statistic import UserArticleCountStorage, UserFollowingsCountStorage, UserFansCountStorage
 from cache.user import UserProfileCache
 from models import db
 from models.user import User
@@ -94,6 +95,9 @@ class CurrentUserProfileResource(Resource):
             # 获取用户信息
             try:
                 user_dict = user_cache.get()
+                user_dict['art_count'] = UserArticleCountStorage.get(user_id)
+                user_dict['followings_count'] = UserFollowingsCountStorage.get(user_id)
+                user_dict['fans_count'] = UserFansCountStorage.get(user_id)
             except BaseException as e:
                 current_app.logger.error(e)
                 return {'message': 'Server Error'}, 500
