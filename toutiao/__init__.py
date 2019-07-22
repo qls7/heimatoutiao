@@ -1,4 +1,8 @@
+from apscheduler.executors.pool import ThreadPoolExecutor
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
+
+from schedule.schedule import fix_statistic
 
 
 def create_flask_app(config, enable_config_file=False):
@@ -54,6 +58,18 @@ def create_app(config, enable_config_file=False):
     app.id_worker = IdWorker(app.config['DATACENTER_ID'],
                              app.config['WORKER_ID'],
                              app.config['SEQUENCE'])
+
+    # 添加定时任务
+    executor = ThreadPoolExecutor(max_workers=3)
+    executors = {
+        'default': executor
+    }
+    app.scheduler = BackgroundScheduler(executors=executors)
+    # 添加任务 每天3点校正数据
+    # app.scheduler.add_job(fix_statistic, 'cron', hour=3, args=[app])
+    # date 只用于测试
+    app.scheduler.add_job(fix_statistic, 'date', args=[app])
+    app.scheduler.start()
 
     # 创建请求钩子
     from utils.middlewares import jwt_authentication
