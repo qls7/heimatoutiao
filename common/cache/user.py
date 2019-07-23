@@ -164,3 +164,28 @@ class UserFollowingCache(object):
 
         return target_id_list  # 返回用户的关注列表
 
+    def determine_follows_target(self, target_user_id):
+        """
+        判断用户是否关注了目标用户
+        :param target_user_id: 被关注的用户的id
+        :return: bool
+        """
+        followings = self.get()
+
+        return int(target_user_id) in followings  # 直接进行in判断, 如果在直接返回True 不在返回False
+
+    def update(self, target_user_id, timestamp, increment=1):
+        """
+        更新用户的关注缓存数据
+        :param target_user_id: 被关注的目标用户
+        :param timestamp: 关注时间戳
+        :param increment:  增量 如果是1代表增加关注, 添加对应的target_id 如果是-1 代表取消关注, 删除对应的target_id
+        :return:
+        """
+        try:
+            if increment > 0:
+                self.rc.zadd(self.key, timestamp, target_user_id)  # 直接进行添加数据
+            else:
+                self.rc.zrem(self.key, target_user_id)  # 删除对应的target_id
+        except RedisError as e:
+            current_app.logger.error(e)
