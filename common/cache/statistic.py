@@ -3,7 +3,7 @@ from redis import RedisError
 from sqlalchemy import func
 
 from models import db
-from models.news import Article
+from models.news import Article, Comment
 from models.user import Relation
 
 
@@ -116,3 +116,15 @@ class UserFansCountStorage(BaseCountStorage):
         # 查询数据库库中对应的值
         return db.session.query(Relation.target_user_id, func.count(Relation.id)).\
             filter(Relation.relation == Relation.RELATION.FOLLOW).group_by(Relation.target_user_id).all()
+
+
+class ArticleCommentCountStorage(BaseCountStorage):
+    """
+    文章评论数量
+    """
+    key = 'count:art:comm'
+
+    @staticmethod
+    def db_query():
+        return db.session.query(Comment.article_id, func.count(Comment.id)).\
+            filter(Comment.status == Comment.STATUS.APPROVED).group_by(Comment.article_id).all()
