@@ -72,7 +72,7 @@ class Article(db.Model):
     channel = db.relationship('Channel', uselist=False)
 
 
-class ArticleCotent(db.Model):
+class ArticleContent(db.Model):
     """
     文章内容表
     """
