@@ -2,6 +2,7 @@ import logging
 import logging.handlers
 import os
 
+from datetime import datetime
 from flask import request
 
 
@@ -69,6 +70,26 @@ def create_logger(app):
     flask_logger.addHandler(flask_file_handler)
     limit_logger.addHandler(limit_file_handler)
 
+    # 埋点日志
+    trace_file_handler = logging.FileHandler(
+        os.path.join(logging_file_dir, 'userClick.log')
+    )
+    trace_file_handler.setFormatter(logging.Formatter('%(message)s'))
+    log_trace = logging.getLogger('trace')
+    log_trace.addHandler(trace_file_handler)
+    log_trace.setLevel(logging.INFO)
+
     if app.debug:
         flask_logger.addHandler(flask_console_handler)
         limit_logger.addHandler(flask_console_handler)
+
+
+def write_trace_log(param):
+    """
+    写埋点日志
+    :param param: 埋点参数
+    :return:
+    """
+    logger = logging.getLogger('trace')
+    message = '{"readTime": "%s", "param": %s}' % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), param)
+    logger.info(message)

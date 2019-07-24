@@ -91,7 +91,7 @@ class ArticleInfoCache(object):
         if not article_dict:
             return None
         article_dict = self._fill_fields(article_dict)
-        del article_dict['allow_comm']
+        # del article_dict['allow_comm']
 
         return article_dict
 
