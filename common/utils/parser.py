@@ -1,8 +1,9 @@
 import base64
 import imghdr
 import re
-
 from datetime import datetime
+
+from cache.channel import AllChannelsCache
 
 
 def mobile(mobile_str):
@@ -130,25 +131,25 @@ def id_number(value):
         raise ValueError('Invalid id number.')
 
 
-# def channel_id(value):
-#     """
-#     检查是否是频道ID
-#     :param value:  被检查的值
-#     :return: channel_id
-#     """
-#     try:
-#         _channel_id = int(value)
-#     except Exception:
-#         raise ValueError('Invalid channel id.')
-#     else:
-#         if _channel_id < 0:
-#             raise ValueError('Invalid channel id.')
-#         if _channel_id == 0:
-#             #  Recommendation channel
-#             return _channel_id
-#         else:
-#             ret = cache_channel.AllChannelsCache.exists(_channel_id)
-#             if ret:
-#                 return _channel_id
-#             else:
-#                 raise ValueError('Invalid channel id.')
+def channel_id(value):
+    """
+    检查是否是频道ID
+    :param value:  被检查的值
+    :return: channel_id
+    """
+    try:
+        _channel_id = int(value)
+    except Exception:
+        raise ValueError('Invalid channel id.')
+    else:
+        if _channel_id < 0:
+            raise ValueError('Invalid channel id.')
+        if _channel_id == 0:
+            #  Recommendation channel
+            return _channel_id
+        else:
+            ret = AllChannelsCache.exist(_channel_id)
+            if ret:
+                return _channel_id
+            else:
+                raise ValueError('Invalid channel id.')
