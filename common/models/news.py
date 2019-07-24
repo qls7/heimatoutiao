@@ -54,6 +54,7 @@ class Article(db.Model):
     id = db.Column('article_id', db.Integer, primary_key=True, doc='文章ID')
     user_id = db.Column(db.Integer, db.ForeignKey('user_basic.user_id'), doc='用户ID')
     channel_id = db.Column(db.Integer, db.ForeignKey('news_channel.channel_id'), doc='频道ID')
+    title = db.Column(db.String, doc='标题')
     cover = db.Column(db.JSON, doc='封面')
     is_advertising = db.Column(db.Boolean, default=0, doc='贴文状态')
     status = db.Column(db.Integer, default=0, doc='贴文状态')
