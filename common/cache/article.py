@@ -36,7 +36,7 @@ class ArticleInfoCache(object):
         :return:
         """
         try:
-            article = Article.auery.options(load_only(Article.id, Article.title, Article.user_id, Article.channel_id,
+            article = Article.query.options(load_only(Article.id, Article.title, Article.user_id, Article.channel_id,
                                         Article.cover, Article.ctime)).filter(Article.status == Article.STATUS.APPROVED,
                                                                               Article.id == self.article_id).first()
         except DatabaseError as e:

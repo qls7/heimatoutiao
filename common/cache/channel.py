@@ -38,8 +38,8 @@ class AllChannelsCache(object):
             # 数据库查询
             channel_list = []
             try:
-                channels = Channel.query.option(load_only(Channel.name, Channel.id)).\
-                    filter(Channel.is_visible == True).order_by(Channel.sequence, Channel.id).all()
+                channels = Channel.query.options(load_only(Channel.name, Channel.id)).\
+                    filter(Channel.is_visible == 1).order_by(Channel.sequence, Channel.id).all()
             except DatabaseError as e:
                 current_app.logger.error(e)
                 raise e
@@ -71,8 +71,8 @@ class AllChannelsCache(object):
         channel_list = cls.get()
 
         if channel_list and channel_list != b'-1':
-            for channel in channel_list:
-                if channel_id in channel:
+            for channel_dict in channel_list:
+                if channel_dict.get('id') == int(channel_id):
                     return True
             return False
         else:

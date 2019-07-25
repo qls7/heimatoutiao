@@ -1,0 +1,1 @@
+USER_RECOMMENDS_COUNT = 10  # 推荐数量
