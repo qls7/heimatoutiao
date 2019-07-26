@@ -61,3 +61,6 @@ class DefaultConfig(object):
     class RPC:
         RECOMMEND = '127.0.0.1:8888'
         CHATBOT = '127.0.0.1:9999'
+
+    # 消息队列的连接地址
+    RABBITMQ = 'amqp://guest:guest@127.0.0.1:5672'

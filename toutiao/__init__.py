@@ -82,6 +82,10 @@ def create_app(config, enable_config_file=False):
     import grpc
     app.rpc_reco = grpc.insecure_channel(app.config['RPC'].RECOMMEND)
 
+    # 创建socketio的队列管理器
+    import socketio
+    app.siomgr = socketio.KombuManager(app.config['RABBITMQ'])
+
     # 创建请求钩子
     from utils.middlewares import jwt_authentication
     app.before_request(jwt_authentication)
