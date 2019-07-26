@@ -79,7 +79,7 @@ class UserProfileCache(object):
         while True:
             # lock = self.cluster.setnx(lock_key, 1)
             lock = self.cluster.get(lock_key)
-            if lock == 0:
+            if lock == 0 or lock is None:
                 # self.cluster.expire(lock_key, 1)
                 try:
                     user = User.query.options(load_only(User.name, User.mobile,

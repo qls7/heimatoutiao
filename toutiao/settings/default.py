@@ -56,3 +56,11 @@ class DefaultConfig(object):
     QINIU_SECRET_KEY = 'rGwHyAvnlLK7rU4htRpNYzpuz0OHJKzX2O1LWTNl'
     QINIU_BUCKET_NAME = 'sh26'  # 存储空间的名字
     QINIU_DOMAIN = 'http://puk2zync7.bkt.clouddn.com/'  # 存储图片的域名
+
+    # rpc
+    class RPC:
+        RECOMMEND = '127.0.0.1:8888'
+        CHATBOT = '127.0.0.1:9999'
+
+    # 消息队列的连接地址
+    RABBITMQ = 'amqp://guest:guest@127.0.0.1:5672'

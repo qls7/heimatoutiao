@@ -1,0 +1,42 @@
+syntax = 'proto3'; // 指定协议版本号
+
+//  文章推荐的请求数据类型 每一个字段必须定义字段编号, 并且在同一个数类型中不能重复
+message RecoRequest {
+    string user_id = 1; //用户id 字符串类型 user_id 标记为1
+    int32 channel = 2; //频道id 整型 channel 标记为 2
+    int32 article_num = 3; //文章数量
+    int64 time_stamp = 4; //时间戳
+}
+
+//  埋点的数据类型
+message Track {
+    string click = 1; //点击的埋点数据
+    string read = 2; //阅读的埋点数据
+    string collect = 3; //收藏的埋点数据
+}
+
+//  文章的数据类型
+message Article {
+    int64 article_id=1;  //文章id
+    Track track=2;  //埋点数据
+}
+
+//  文章推荐的响应类型
+message RecoResponse {
+    repeated Article articles=1;  //文章列表 列表类型
+    int64 pre_time_stamp=2;  //上一次推荐数据的时间
+}
+
+//  定义远程调用的函数,推荐系统服务
+//  service TestService{ rpc func1 (TestRequest请求类型即参数类型) returns  (TestResponse设置返回值类型叫响应类型) {}}
+service RecoService{
+    rpc article_recommend (RecoRequest) returns (RecoResponse) { } // 获取首页的文章推荐
+    // rpc article_like {} // 获取详情页的猜你喜欢函数
+    // 一个服务里面可以写多个远程调用函数
+}
+
+// 第二步 命令行生成 IDL(接口定义语言) 定义接口
+//    安装 pip install grpcio-tools
+//    执行编译命令 python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. test.proto
+
+//  生成完IDL接口 rpc 服务器就搭建好了
