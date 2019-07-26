@@ -78,11 +78,11 @@ def create_app(config, enable_config_file=False):
     app.scheduler.add_job(fix_statistic, 'date', args=[app])
     app.scheduler.start()
 
-    # 创建推荐系统的rpc连接
+    # 创建推荐系统的rpc连接 一但设置 必须启用生产者模式
     import grpc
     app.rpc_reco = grpc.insecure_channel(app.config['RPC'].RECOMMEND)
 
-    # 创建socketio的队列管理器
+    # 创建socketio的队列管理器 一旦设置 必须启用生产者模式
     import socketio
     app.siomgr = socketio.KombuManager(app.config['RABBITMQ'])
 

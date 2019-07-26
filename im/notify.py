@@ -25,12 +25,13 @@ def connect(sid, environ):
     user_id = check_token(token)
     # 一但建立连接, 让其进入指定user_id 的房间
     sio.enter_room(sid, room=user_id)
+    print('Master~: 用户{}进入了房间'.format(user_id))
 
 
 @sio.on('disconnect')
 def connect(sid):
     # 一单断开连接, 马上退出当前所在的所有房间
-    rooms = sio.rooms()
+    rooms = sio.rooms(sid)
     # 关闭所有的房间, 并离开
     for room in rooms:
         sio.leave_room(sid, room)

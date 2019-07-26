@@ -24,10 +24,10 @@ class FollowingListResource(Resource):
         :return:
         """
         parser = reqparse.RequestParser()
-        parser.add_argument('target', required=True, location='json')
+        parser.add_argument('target', required=True, location='json', type=int)
         args = parser.parse_args()
 
-        target_id = int(args.get('target'))
+        target_id = args.get('target')
         if target_id == g.user_id:
             return {'message': 'User  cannot following self'}, 400
         ret = 1
@@ -63,7 +63,7 @@ class FollowingListResource(Resource):
             'timestamp': int(time.time())
         }
         # TDO 需要将"张三关注李四的通知" 放如消息队列
-        current_app.siomgr.emit('following notify',_data, room=target_id)
+        current_app.siomgr.emit('following notify', _data, room=target_id)
 
         # 返回关注成功
         return {'target': target_id}, 201
