@@ -1,12 +1,7 @@
-import os
-import sys
-
 from flask import jsonify
 
 from .settings.default import DefaultConfig
 from . import create_app
-
-
 
 
 # 创建flask应用
