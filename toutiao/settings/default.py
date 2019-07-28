@@ -64,3 +64,12 @@ class DefaultConfig(object):
 
     # 消息队列的连接地址
     RABBITMQ = 'amqp://guest:guest@127.0.0.1:5672'
+
+    # elasticsearch集群服务器的地址
+    ES = [
+        '127.0.0.1:9200'
+    ]
+
+
+class TestingConfig(DefaultConfig):
+    TESTING = True  # 如果进行单元测试, 建议设置为True, 一但开启, 会停用所有flask内部的异常捕获(这样会精确定位到错误位置)
