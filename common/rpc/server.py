@@ -35,8 +35,6 @@ class RecoServiceService(reco_pb2_grpc.RecoServiceServicer):
 
         return resp
 
-        return resp
-
 
 # 2. 配置服务器
 def server():

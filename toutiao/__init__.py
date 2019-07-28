@@ -86,6 +86,18 @@ def create_app(config, enable_config_file=False):
     import socketio
     app.siomgr = socketio.KombuManager(app.config['RABBITMQ'])
 
+    # 创建elasticsearch客户端
+    from elasticsearch5 import Elasticsearch
+    app.es = Elasticsearch(
+        app.config['ES'],
+        # 启动前嗅探es集群服务器
+        sniff_on_start=False,
+        # es集群服务器结点连接异常时是否刷新es结点信息
+        sniff_on_connection_fail=False,
+        # 每60秒刷新节点信息
+        sniffer_timeout=60
+    )
+
     # 创建请求钩子
     from utils.middlewares import jwt_authentication
     app.before_request(jwt_authentication)
